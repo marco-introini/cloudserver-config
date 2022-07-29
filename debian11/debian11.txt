@@ -1,0 +1,36 @@
+apt update
+apt update
+sudo apt install apache2
+
+apt install ufw -y
+sudo systemctl enable ufw --now
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow 22/tcp
+
+ufw enable
+ufw status verbose
+
+echo "MY IP:"
+ip addr show eth0 | grep inet | awk '{ print $2; }' | sed 's/\/.*$//'
+
+adduser marco
+
+#sury packages
+sudo apt-get install ca-certificates apt-transport-https software-properties-common wget curl lsb-release -y
+curl -sSL https://packages.sury.org/php/README.txt | sudo bash -x
+sudo apt update
+sudo apt upgrade
+sudo apt install php8.1 libapache2-mod-php8.1
+
+sudo systemctl restart apache2
+
+apt install mariadb-server
+mysql_secure_installation
+
+apt install php libapache2-mod-php php-mysql
+
+
+apt install composer
+
+apt install npm
