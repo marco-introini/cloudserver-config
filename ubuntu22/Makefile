@@ -1,3 +1,11 @@
+.DEFAULT_GOAL := info
+
+info:
+	@echo "Makefile from cloudserver-config"
+	@echo "================================"
+	@grep '^.PHONY: .* #' Makefile | sed 's/\.PHONY: \(.*\) # \(.*\)/\1 \2/' | tr '>' '\t' | expand -t30
+
+.PHONY: update_system # > Update Linux System
 update_system:
 	@echo "UPDATING SYSTEM..."
 	apt update
