@@ -4,8 +4,10 @@
 # https://docs.digitalocean.com/support/check-your-droplet-firewall-settings/
 
 info:
-	@echo "Makefile from cloudserver-config"
-	@echo "================================"
+	@echo "=================================================="
+	@echo "        Makefile from cloudserver-config"
+	@echo "    ==== DIGITAL OCEAN UBUNTU 22 SERVER ===="
+	@echo "=================================================="
 	@grep '^.PHONY: .* #' Makefile | sed 's/\.PHONY: \(.*\) # \(.*\)/\1 \2/' | tr '>' '\t' | expand -t30
 
 .PHONY: update_system # > Update Linux System
