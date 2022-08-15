@@ -14,16 +14,19 @@ update_system:
 	apt update
 	apt upgrade
 
+.PHONY: install_apache # > Install Apache2
 install_apache:
 	@echo "INSTALLING APACHE2..."
 	sudo apt install apache2
 	a2enmod rewrite # install mod rewrite
 	systemctl restart apache2
 
+.PHONY: install_apache_ssl # > Install Apache2 SSL
 install_apache_ssl:
 	# https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04
 	apt install certbot python3-certbot-apache
 
+.PHONY: generate_apache_ssl # > Generate Apache2 SSL Let's Encryt
 generate_apache_ssl:
 	# info: https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04
 	certbot --apache -v
@@ -35,6 +38,7 @@ generate_apache_ssl:
 	certbot renew --dry-run
 	@echo "Now modify the conf files!"
 
+.PHONY: install_php # > Install PHP 8.1
 install_php:
 	@echo "INSTALLING PHP..."
 	apt install php8.1 libapache2-mod-php8.1 php8.1-cli php8.1-curl php8.1-dom php8.1-zip
@@ -42,6 +46,7 @@ install_php:
 	apt-get install php8.1-gd
 	systemctl restart apache2
 
+.PHONY: install_mysql # > Install MySQL database server
 install_mysql:
 	# https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-22-04
 	@echo "INSTALLING MYSQL..."
@@ -53,10 +58,12 @@ install_mysql:
 	apt install php-mysql
 	systemctl restart apache2
 
+.PHONY: install_composer # > Install Composer
 install_composer:
 	@echo "INSTALLING COMPOSER..."
 	apt install composer
 
+.PHONY: install_npm # > Install NodeJS 18
 install_npm:
 	# https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-22-04
 	# we need node18 for ViteJs
@@ -68,21 +75,20 @@ install_npm:
 	apt install nodejs
 	node -v
 
+.PHONY: make_links # > Create root symlinks
 make_links:
 	@echo "CREATING HOME LINKS FOR APACHE..."
 	cd ~
 	ln -s /var/log/apache2/ apachelog
 	ln -s /etc/apache2/sites-available sites-available
 
-add_user:
-	@echo "ADDING USER MARCO..."
-	adduser marco
-
+.PHONY: verify_system # > Verify System Status
 verify_system:
 	systemctl status apache2
 	systemctl is-active mysql
 
-install_server: install_apache install_php install_apache_ssl install_mysql install_composer install_npm add_user
+.PHONY: install_server # > INSTALL A NEW COMPLETE SERVER
+install_server: install_apache install_php install_apache_ssl install_mysql install_composer install_npm
 	ufw disable
 	@echo "Setting TimeZone"
 	timedatectl set-timezone Europe/Rome
@@ -90,9 +96,11 @@ install_server: install_apache install_php install_apache_ssl install_mysql inst
 	@echo "Now modify /etc/apache2/sites-available/000-default.conf or add some config\n\n"
 	@echo "remember a2ensite new sites!"
 
+.PHONY: create_backup_structure # > Create a backup structure
 create_backup_structure:
 	mkdir /var/databaseDump
 	chmod 777 /var/databaseDump
 
+.PHONY: backup_database # > Backup all databases
 backup_database:
 	mysqldump --all-databases >> /var/databaseDump/database.sql
