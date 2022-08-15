@@ -1,5 +1,8 @@
 .DEFAULT_GOAL := info
 
+# In DigitalOcean you should use the VPC firewall, so all ufw directive will be unused
+# https://docs.digitalocean.com/support/check-your-droplet-firewall-settings/
+
 info:
 	@echo "Makefile from cloudserver-config"
 	@echo "================================"
@@ -14,25 +17,15 @@ update_system:
 install_apache:
 	@echo "INSTALLING APACHE2..."
 	sudo apt install apache2
-	# Install firewall if not already done
-	# apt install ufw -y
-	# sudo systemctl enable ufw --now
-	ufw allow 80/tcp
-	ufw allow 443/tcp
-	ufw allow 22/tcp
-	ufw deny 3306/tcp
-	ufw enable
-	ufw status verbose
 	a2enmod rewrite # install mod rewrite
 	systemctl restart apache2
 
 install_apache_ssl:
+	# https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04
 	apt install certbot python3-certbot-apache
-	ufw allow 'Apache Full'
 
 generate_apache_ssl:
 	# info: https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04
-	ufw allow 'Apache Full'
 	certbot --apache -v
 	apache2ctl configtest
 	systemctl reload apache2
@@ -50,6 +43,7 @@ install_php:
 	systemctl restart apache2
 
 install_mysql:
+	# https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-22-04
 	@echo "INSTALLING MYSQL..."
 	apt install mysql-server
 	@echo "Running mySQL. Paste this with your chosen password:\n"
@@ -64,12 +58,19 @@ install_composer:
 	apt install composer
 
 install_npm:
-	@echo "INSTALLING NODEJS..."
-	apt install npm
+	# https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-22-04
+	# we need node18 for ViteJs
+	@echo "INSTALLING NODEJS 18..."
+	# apt install npm
+	cd ~
+	curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+	bash nodesource_setup.sh
+	apt install nodejs
+	node -v
 
 make_links:
 	@echo "CREATING HOME LINKS FOR APACHE..."
-	cd
+	cd ~
 	ln -s /var/log/apache2/ apachelog
 	ln -s /etc/apache2/sites-available sites-available
 
@@ -82,6 +83,9 @@ verify_system:
 	systemctl is-active mysql
 
 install_server: install_apache install_php install_apache_ssl install_mysql install_composer install_npm add_user
+	ufw disable
+	@echo "Setting TimeZone"
+	timedatectl set-timezone Europe/Rome
 	@echo "Apache Log dir: /var/log/apache2"
 	@echo "Now modify /etc/apache2/sites-available/000-default.conf or add some config\n\n"
 	@echo "remember a2ensite new sites!"
@@ -91,4 +95,4 @@ create_backup_structure:
 	chmod 777 /var/databaseDump
 
 backup_database:
-	mysqldump databaseToBackup -uroot -p >> /var/databaseDump/database.sql
+	mysqldump --all-databases >> /var/databaseDump/database.sql
