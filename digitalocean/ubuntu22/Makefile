@@ -47,6 +47,7 @@ install_php:
 	# install gd for matomo
 	apt-get install php8.1-gd
 	systemctl restart apache2
+	@echo "PHP.ini file: /etc/php/8.1/apache2/php.ini"
 
 .PHONY: install_mysql # > Install MySQL database server
 install_mysql:
@@ -97,6 +98,8 @@ install_server: install_apache install_php install_apache_ssl install_mysql inst
 	@echo "Apache Log dir: /var/log/apache2"
 	@echo "Now modify /etc/apache2/sites-available/000-default.conf or add some config\n\n"
 	@echo "remember a2ensite new sites!"
+	@echo "Modify swap space!"
+	# https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-22-04
 
 .PHONY: create_backup_structure # > Create a backup structure
 create_backup_structure:
