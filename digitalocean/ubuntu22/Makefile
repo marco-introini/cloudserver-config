@@ -28,7 +28,7 @@ install_apache_ssl:
 	# https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04
 	apt install certbot python3-certbot-apache
 
-.PHONY: generate_apache_ssl # > Generate Apache2 SSL Let's Encryt
+.PHONY: generate_apache_ssl # > Generate Apache2 SSL Let's Encrypt
 generate_apache_ssl:
 	# info: https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04
 	certbot --apache -v
@@ -89,9 +89,10 @@ make_links:
 verify_system:
 	systemctl status apache2
 	systemctl is-active mysql
+	supervisorctl status
 
 .PHONY: install_server # > INSTALL A NEW COMPLETE SERVER
-install_server: install_apache install_php install_apache_ssl install_mysql install_composer install_npm
+install_server: install_apache install_php install_apache_ssl install_mysql install_composer install_npm install_supervisor
 	ufw disable
 	@echo "Setting TimeZone"
 	timedatectl set-timezone Europe/Rome
@@ -100,6 +101,11 @@ install_server: install_apache install_php install_apache_ssl install_mysql inst
 	@echo "remember a2ensite new sites!"
 	@echo "Modify swap space!"
 	# https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-22-04
+
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps
+.PHONY: install_supervisor # > INSTALL A NEW COMPLETE SERVER
+install_supervisor:
+	apt install supervisor
 
 .PHONY: create_backup_structure # > Create a backup structure
 create_backup_structure:
